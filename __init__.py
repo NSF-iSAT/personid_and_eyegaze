@@ -23,7 +23,7 @@ params = {
         'length':12},
     ],
     "ReferRateSec":4,
-    "videoPath":"/scratch/shared/whitehill/recording_id_6425d1ae29b832001e054b16/Terri-Reh_2023-03-30_PComputer-Science-P5-SP-2023---Terri-Reh---Flagstaff_Cx_Lx_video-device-unknown_12.15.09.285_Chunk0001.webm",
+    "videoPath":"Chunk0001.webm",
     "startTime":0, 
     "endTime":5,
     "TestRateSec":1
