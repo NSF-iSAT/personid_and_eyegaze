@@ -1,8 +1,6 @@
 
 import os
 import sys
-sys.path.append("/scratch/shared/whitehill/ReidGaze/AGW")
-sys.path.append("/scratch/shared/whitehill/ReidGaze")
 import torch
 import logging
 from AGW.modeling import build_model
