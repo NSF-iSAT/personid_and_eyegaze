@@ -1,6 +1,7 @@
 import numpy as np
 import ffmpeg
-from PIL import Image,ImageDraw,ImageFont
+# from PIL import Image,ImageDraw,ImageFont
+import subprocess as sp
 
 def get_frame(video_path,t):
     probe = ffmpeg.probe(video_path)
@@ -22,6 +23,6 @@ def get_frame(video_path,t):
     pipe.stdout.flush()
     return image,width,height
   
- if __name__=="__main__":
-  inputVideo = ""
-  frame,w,h = get_frame(inputVideo,1)
+if __name__ == "__main__" :
+    inputVideo = "/home/ubuntu/personid_and_eyegaze/chunk.webm"
+    frame,w,h = get_frame(inputVideo,1)

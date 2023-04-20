@@ -16,7 +16,9 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 from GazeNet.Face_Detection import image, load_test
 from get_embedding import main as gemb
-from AGW import build_model
+import sys
+sys.path.append("./AGW")
+from AGW.modeling import build_model
 from AGW.configs_emb import _C as cfg
 
 def initialize():
@@ -34,6 +36,7 @@ def initialize():
     
  
 def processRequest (params):
+    initialize()
     registrations = params['registrations']
     inputVideo = params['videoPath']
     startTime = params['startTime']
@@ -93,10 +96,10 @@ def processRequest (params):
             person["GazeTarget"] = gaze
             frame_res.append(person)
         frame_json[t]=frame_res
-        # image.save(f"img5_{}.jpg")
+        image.save(f"img5_{i}.jpg")
         img_list.append(image)
-    # with open(f"example_all.json","w",encoding='utf-8') as f:
-    #     json.dump(frame_json,f)
+    with open(f"example_all.json","w",encoding='utf-8') as f:
+        json.dump(frame_json,f)
     return frame_json,img_list
 
 def get_ref_emb(registrition,ref_duration):
@@ -113,7 +116,7 @@ def get_ref_emb(registrition,ref_duration):
             for t in range(0,length,ref_duration):           
                 ref_frame,width,height = get_frame(ref_path,t)
                 ref_image = Image.fromarray(ref_frame)
-                # ref_image.save(f"exam_{label}_{t}.jpg")
+                ref_image.save(f"exam_{label}_{t}.jpg")
                 bounding_boxes = detect_boxes(ref_frame)
                 pbox = bounding_boxes[np.argmax((bounding_boxes[:,2]-bounding_boxes[:,0])*(bounding_boxes[:,3]-bounding_boxes[:,1]))]
                 ref_boxes.append(pbox)
@@ -208,22 +211,22 @@ if __name__ == "__main__":
     params = {
         "registrations":[
             {'id': "214307", 
-            'registrationVideoPath':"/scratch/shared/whitehill/recording_id_6425d1ae29b832001e054b16/student_enrollment_214307.webm",
+            'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_214307.webm",
             'length':28},
             {'id': "222826", 
-            'registrationVideoPath':"/scratch/shared/whitehill/recording_id_6425d1ae29b832001e054b16/student_enrollment_222826.webm",
+            'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_222826.webm",
             'length':12},
             {'id': "236416", 
-            'registrationVideoPath':"/scratch/shared/whitehill/recording_id_6425d1ae29b832001e054b16/student_enrollment_236416.webm",
+            'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_236416.webm",
             'length':13},
             {'id': "253270", 
-            'registrationVideoPath':"/scratch/shared/whitehill/recording_id_6425d1ae29b832001e054b16/student_enrollment_253270.webm",
+            'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_253270.webm",
             'length':12},
         ],
-        "ReferRateSec":4,
-        "videoPath":"Chunk0001.webm",
-        "startTime":10, 
-        "endTime":20,
+        "ReferRateSec": 10,
+        "videoPath":"/home/ubuntu/personid_and_eyegaze/files/chunk.webm",
+        "startTime":0, 
+        "endTime":5,
         "TestRateSec":1
     }
     processRequest(params)

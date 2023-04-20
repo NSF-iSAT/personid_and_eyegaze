@@ -5,7 +5,7 @@ sys.path.append("./AGW")
 import torch
 import logging
 # from AGW.modeling import build_model
-# from AGW.configs_emb import _C as cfg
+from AGW.configs_emb import _C as cfg
 import logging
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
