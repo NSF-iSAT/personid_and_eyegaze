@@ -1,6 +1,7 @@
 
 import os
 import sys
+sys.path.append("./AGW")
 import torch
 import logging
 from AGW.modeling import build_model
