@@ -16,14 +16,23 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 from GazeNet.Face_Detection import image, load_test
 from get_embedding import main as gemb
+from AGW import build_model
+from AGW.configs_emb import _C as cfg
 
-model_path ="AGW/resnet50_nl_model_18.pth"
-
-def euclideanLoss(y_true, y_pred):
-    return K.mean(K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))) 
-gaze_model = keras.models.load_model("GazeNet/Model/1", custom_objects={'euclideanLoss': euclideanLoss,
-                                                               'categorical_accuracy': categorical_accuracy})
-
+def initialize():
+    def euclideanLoss(y_true, y_pred):
+        return K.mean(K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))) 
+    global gaze_model
+    gaze_model = keras.models.load_model("GazeNet/Model/1", custom_objects={'euclideanLoss': euclideanLoss,
+                                                                'categorical_accuracy': categorical_accuracy})
+    model_path ="AGW/resnet50_nl_model_18.pth"
+    global model
+    model = build_model(cfg,10)
+    model.load_param(model_path)
+    global allRegistrationEmbeddings
+    allRegistrationEmbeddings = {}
+    
+ 
 def processRequest (params):
     registrations = params['registrations']
     inputVideo = params['videoPath']
@@ -42,7 +51,7 @@ def processRequest (params):
         bounding_boxes = detect_boxes(frame)
         face_boxes,faces,heads = detect_face(image,frame)
         # process frame (reid, eye gaze, etc.)
-        emb = gemb(model_path,image,bounding_boxes)
+        emb = gemb(model,image,bounding_boxes)
         # set an threshhold
         assign_label_list = assign(ref_embs,labels,emb)
         img_resize = image.resize((256, 256))
@@ -97,16 +106,20 @@ def get_ref_emb(registrition,ref_duration):
         ref_boxes = []
         label = one_ref["id"]
         ref_path = one_ref["registrationVideoPath"]
-        length = one_ref['length']
-        for t in range(0,length,ref_duration):           
-            ref_frame,width,height = get_frame(ref_path,t)
-            ref_image = Image.fromarray(ref_frame)
-            # ref_image.save(f"exam_{label}_{t}.jpg")
-            bounding_boxes = detect_boxes(ref_frame)
-            pbox = bounding_boxes[np.argmax((bounding_boxes[:,2]-bounding_boxes[:,0])*(bounding_boxes[:,3]-bounding_boxes[:,1]))]
-            ref_boxes.append(pbox)
-        embs = gemb(model_path,ref_image,ref_boxes)
-        ref_emb = np.array(embs).mean(axis=0)
+        if ref_path in allRegistrationEmbeddings.keys():
+            (ref_emb, label) = allRegistrationEmbeddings[ref_path]
+        else:
+            length = one_ref['length']
+            for t in range(0,length,ref_duration):           
+                ref_frame,width,height = get_frame(ref_path,t)
+                ref_image = Image.fromarray(ref_frame)
+                # ref_image.save(f"exam_{label}_{t}.jpg")
+                bounding_boxes = detect_boxes(ref_frame)
+                pbox = bounding_boxes[np.argmax((bounding_boxes[:,2]-bounding_boxes[:,0])*(bounding_boxes[:,3]-bounding_boxes[:,1]))]
+                ref_boxes.append(pbox)
+            embs = gemb(model,ref_image,ref_boxes)
+            ref_emb = np.array(embs).mean(axis=0)
+        # either way, we now have the correct registration embeddings for this video
         ref_embs.append(ref_emb)
         labels.append(label)
     return ref_embs,labels
