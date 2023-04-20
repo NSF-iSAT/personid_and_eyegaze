@@ -20,7 +20,7 @@ import sys
 sys.path.append("./AGW")
 from AGW.modeling import build_model
 from AGW.configs_emb import _C as cfg
-
+import time
 def initialize():
     def euclideanLoss(y_true, y_pred):
         return K.mean(K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))) 
@@ -103,6 +103,7 @@ def processRequest (params):
     return frame_json,img_list
 
 def get_ref_emb(registrition,ref_duration):
+    start = time.time()
     ref_embs = []
     labels = []
     for one_ref in registrition:
@@ -125,6 +126,7 @@ def get_ref_emb(registrition,ref_duration):
         # either way, we now have the correct registration embeddings for this video
         ref_embs.append(ref_emb)
         labels.append(label)
+    print("Ref embeddings processing time: " + str(time.time() - start))
     return ref_embs,labels
 
 def get_frame(video_path,t):
@@ -224,12 +226,14 @@ if __name__ == "__main__":
             'length':12},
         ],
         "ReferRateSec": 10,
-        "videoPath":"/home/ubuntu/personid_and_eyegaze/files/chunk.webm",
+        "videoPath":"/home/ubuntu/personid_and_eyegaze/files/chunk02.webm",
         "startTime":0, 
-        "endTime":5,
-        "TestRateSec":1
+        "endTime":10,
+        "TestRateSec":5
     }
+    start = time.time()
     processRequest(params)
+    print("Processing time : " + str(time.time() - start))
 
 
 
