@@ -4,8 +4,8 @@ import sys
 sys.path.append("./AGW")
 import torch
 import logging
-from AGW.modeling import build_model
-from AGW.configs_emb import _C as cfg
+# from AGW.modeling import build_model
+# from AGW.configs_emb import _C as cfg
 import logging
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
@@ -38,11 +38,11 @@ class frameData(Dataset):
         return len(self.boxes)
 
 
-def main(model_path,img,boxes):
+def main(model,img,boxes):
     data = frameData(img,boxes)
     v_dl = DataLoader(data,batch_size=cfg.TEST.IMS_PER_BATCH,shuffle=False)
-    model = build_model(cfg,10)
-    model.load_param(model_path)
+#     model = build_model(cfg,10)
+#     model.load_param(model_path)
     empty = True
     for i, batch in enumerate(v_dl):
         model.eval()
