@@ -80,10 +80,10 @@ def processRequest (params):
             a.rectangle(pbox,fill=None,outline = "cyan", width=5)
             a.text((x_top_left+10,y_top_left+10),str(person["Id"]),fill = "cyan")
             for j,face in enumerate(face_boxes):
-                a.rectangle((face['box'][0],face['box'][1],face['box'][0]+face['box'][2],face['box'][1]+face['box'][3]),fill=None,outline = "magenta", width=3)
                 matched_face = "Unknown"
                 gaze = "Unknown"
                 if x_top_left<face['box'][0] and y_top_left< face['box'][1] and x_bottom_right>face['box'][0]+face['box'][2] and y_bottom_right> face['box'][1]+face['box'][3]:
+                    a.rectangle((face['box'][0],face['box'][1],face['box'][0]+face['box'][2],face['box'][1]+face['box'][3]),fill=None,outline = "magenta", width=3)
                     matched_face = {"x":float(face['box'][0]),"y":float(face['box'][1]),"width":float(face['box'][2]),"height":float(face['box'][3])}
                     gaze = {"x":float(preds_gaze[0][j][0])*w,"y":float(preds_gaze[0][j][1])*h}
                     na = np.array(image)
