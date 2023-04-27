@@ -1,11 +1,16 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from reidgaze import processRequest, initialize
 import os
 import boto3 
 import urllib.parse
 import time
+import subprocess
 app = Flask(__name__)
 s3 = boto3.client('s3')
+
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'ok'})
 
 @app.route('/', methods=['POST'])
 def process_request():
@@ -92,5 +97,10 @@ def upload_images(params):
         print(f"Uploaded {image_uri} to S3 bucket {bucket_name}")
 
 if __name__ == '__main__':
+    # Run the script and capture its output
+    print("Downloading models from aws..")
+    output = subprocess.check_output(['sh', 'download_models.sh'])
+    # Print the output
+    print(output.decode())
     initialize()
     app.run(port=5001)
