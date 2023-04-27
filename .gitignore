@@ -162,3 +162,5 @@ cython_debug/
 files
 AGW/resnet50_nl_model_18.pth
 *.json
+output
+temp_files
