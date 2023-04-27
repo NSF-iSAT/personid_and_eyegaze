@@ -7,10 +7,10 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: personid_and_eyegaze
-  ECS_SERVICE: personid_and_eyegaze_svc
+  ECS_SERVICE: persionid-svc
   ECS_CLUSTER: isat-mmia
-  ECS_TASK_DEFINITION: personid_and_eyegaze                                      
-  CONTAINER_NAME: personid_and_eyegaze
+  ECS_TASK_DEFINITION: personid-svc                                   
+  CONTAINER_NAME: personid-container
 
 permissions:
   contents: read
@@ -48,7 +48,7 @@ jobs:
 
     - name: Download task definition
       run: |
-        aws ecs describe-task-definition --task-definition personid_and_eyegaze \
+        aws ecs describe-task-definition --task-definition personid \
         --query taskDefinition > task-definition.json
 
     - name: Fill in the new image ID in the Amazon ECS task definition
@@ -56,7 +56,7 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
-        container-name: personid_and_eyegaze
+        container-name: personid-container
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition

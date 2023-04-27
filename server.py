@@ -17,7 +17,7 @@ def process_request():
     params = request.json
     start = time.time()
     json, img_list = process_request(params)
-    #upload_images()
+    upload_images()
     print("Processing time : " + str(time.time() - start))
     return json
 
@@ -103,4 +103,4 @@ if __name__ == '__main__':
     # Print the output
     print(output.decode())
     initialize()
-    app.run(port=5001)
+    app.run(host= "0.0.0.0", port=5001)
