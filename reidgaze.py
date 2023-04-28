@@ -35,7 +35,7 @@ def initialize():
     allRegistrationEmbeddings = {}
     
  
-def processRequest (params):
+def processRequest (params, img_dir):
    # initialize()
     registrations = params['registrations']
     inputVideo = params['videoPath']
@@ -97,7 +97,7 @@ def processRequest (params):
             person["GazeTarget"] = gaze
             frame_res.append(person)
         frame_json[t]=frame_res
-        output_dir = 'output'
+        output_dir = img_dir
         image.save(output_dir + f"/re-id-eyegaze-{cnt:03}.jpg")
         print( "count: " + str(cnt))
         cnt += 1 
