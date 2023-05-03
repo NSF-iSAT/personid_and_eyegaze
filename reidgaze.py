@@ -20,7 +20,7 @@ import sys
 sys.path.append("./AGW")
 from AGW.modeling import build_model
 from AGW.configs_emb import _C as cfg
-
+import time
 def initialize():
     def euclideanLoss(y_true, y_pred):
         return K.mean(K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))) 
@@ -35,8 +35,8 @@ def initialize():
     allRegistrationEmbeddings = {}
     
  
-def processRequest (params):
-    initialize()
+def processRequest (params, img_dir):
+   # initialize()
     registrations = params['registrations']
     inputVideo = params['videoPath']
     startTime = params['startTime']
@@ -47,6 +47,7 @@ def processRequest (params):
     frame_json = {}
     img_list = []
     for t in range(startTime, endTime,testratesec):
+        cnt = 1
         # grab frame from video at time t 
         frame,w,h = get_frame(inputVideo,t) #Frame is array
         image = Image.fromarray(frame) #Image is image
@@ -96,13 +97,17 @@ def processRequest (params):
             person["GazeTarget"] = gaze
             frame_res.append(person)
         frame_json[t]=frame_res
-        image.save(f"img5_{i}.jpg")
+        output_dir = img_dir
+        image.save(output_dir + f"/re-id-eyegaze-{cnt:03}.jpg")
+        print( "count: " + str(cnt))
+        cnt += 1 
         img_list.append(image)
     with open(f"example_all.json","w",encoding='utf-8') as f:
         json.dump(frame_json,f)
     return frame_json,img_list
 
 def get_ref_emb(registrition,ref_duration):
+    start = time.time()
     ref_embs = []
     labels = []
     for one_ref in registrition:
@@ -116,15 +121,17 @@ def get_ref_emb(registrition,ref_duration):
             for t in range(0,length,ref_duration):           
                 ref_frame,width,height = get_frame(ref_path,t)
                 ref_image = Image.fromarray(ref_frame)
-                ref_image.save(f"exam_{label}_{t}.jpg")
+                # ref_image.save(f"exam_{label}_{t}.jpg")
                 bounding_boxes = detect_boxes(ref_frame)
                 pbox = bounding_boxes[np.argmax((bounding_boxes[:,2]-bounding_boxes[:,0])*(bounding_boxes[:,3]-bounding_boxes[:,1]))]
                 ref_boxes.append(pbox)
             embs = gemb(model,ref_image,ref_boxes)
             ref_emb = np.array(embs).mean(axis=0)
+            allRegistrationEmbeddings[ref_path] = (ref_emb, label)
         # either way, we now have the correct registration embeddings for this video
         ref_embs.append(ref_emb)
         labels.append(label)
+    print("Ref embeddings processing time: " + str(time.time() - start))
     return ref_embs,labels
 
 def get_frame(video_path,t):
@@ -210,26 +217,29 @@ def assign(ref_embs,labels,frame_emb):
 if __name__ == "__main__":
     params = {
         "registrations":[
-            {'id': "214307", 
+            {'id': "611e8d985667804b6c3b7db0", 
             'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_214307.webm",
             'length':28},
-            {'id': "222826", 
+            {'id': "611e8d985667804b6c3b6a45a", 
             'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_222826.webm",
             'length':12},
-            {'id': "236416", 
+            {'id': "611e8d985667804b6c3b4a86", 
             'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_236416.webm",
             'length':13},
-            {'id': "253270", 
+            {'id': "611e8d985667804b6c3ba2b4", 
             'registrationVideoPath':"/home/ubuntu/personid_and_eyegaze/files/student_enrollment_253270.webm",
             'length':12},
         ],
         "ReferRateSec": 10,
-        "videoPath":"/home/ubuntu/personid_and_eyegaze/files/chunk.webm",
+        "videoPath":"/home/ubuntu/personid_and_eyegaze/files/chunk02.webm",
         "startTime":0, 
-        "endTime":5,
-        "TestRateSec":1
+        "endTime":10,
+        "TestRateSec":5
     }
+    start = time.time()
+    initialize()
     processRequest(params)
+    print("Processing time : " + str(time.time() - start))
 
 
 
